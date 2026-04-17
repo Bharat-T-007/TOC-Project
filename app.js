@@ -1,5 +1,5 @@
 /**
- * DFA Minimization Simulator - Enhanced Educational Version
+ * DFA Minimization Simulator 
  */
 
 class DFA {
@@ -24,8 +24,8 @@ class MinimizationSimulator {
     constructor(dfa) {
         this.dfa = dfa;
         this.pairs = [];
-        this.marked = new Map(); // key -> { marked: bool, reason: string, round: int, string: string, dependency: key }
-        this.history = []; // Array of step objects
+        this.marked = new Map(); 
+        this.history = []; 
         this.isComplete = false;
         
         this.initPairs();
@@ -335,9 +335,9 @@ const UI = {
         const curStep = this.state.steps[this.state.currentStepIndex];
         const prevStep = this.state.currentStepIndex >= 0 ? this.state.steps[this.state.currentStepIndex] : null;
         
-        // Restore state from simulator logic (perfect sync)
-        const stateToApply = prevStep ? this.state.simulator.captureState() : null; // Actually logic needs to match
-        // But since we have stateBefore in each step, stepping back means using stateBefore of the step we just left.
+        // Restore state from simulator logic 
+        const stateToApply = prevStep ? this.state.simulator.captureState() : null; 
+       
         
         // Reset all visuals
         document.querySelectorAll('.tri-cell').forEach(c => {
@@ -499,7 +499,7 @@ const UI = {
             } 
         }));
 
-        // Robust consolidation: (source_target) -> [symbols]
+        // Robust consolidation
         const edgeData = {};
         dfa.states.forEach(s => {
             dfa.alphabet.forEach(a => {

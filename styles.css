@@ -437,16 +437,16 @@ input[type="text"]:focus {
     color: #92400e;
 }
 
-/* New Interactive Highlighting */
+
 .tri-cell.current-focus {
-    box-shadow: inset 0 0 0 3px #3b82f6; /* Blue outline */
+    box-shadow: inset 0 0 0 3px #3b82f6; 
     transform: scale(1.05);
     z-index: 5;
     animation: pulse-blue 1.5s infinite;
 }
 
 .tri-cell.dependency-focus {
-    box-shadow: 0 0 15px 5px rgba(249, 115, 22, 0.5); /* Orange glow */
+    box-shadow: 0 0 15px 5px rgba(249, 115, 22, 0.5); 
     z-index: 4;
 }
 

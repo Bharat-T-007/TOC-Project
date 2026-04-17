@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Myhill–Nerode DFA Minimization Simulator</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Cytoscape.js for Graphs -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.23.0/cytoscape.min.js"></script>
+    <!-- Dagre Layout for perfect structural flow -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dagre/0.8.5/dagre.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="containerHeader">
+            <h1>Myhill–Nerode DFA Minimization Simulator</h1>
+            <p>Interactive Table-Filling Method Visualization</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Input Panel -->
+        <section id="input-section" class="panel">
+            <div class="panel-header">
+                <h2>DFA Configuration</h2>
+            </div>
+            <div class="input-group">
+                <label for="states-input">States (comma separated)</label>
+                <input type="text" id="states-input" placeholder="q0, q1, q2, q3" value="q0, q1, q2, q3, q4, q5">
+            </div>
+            <div class="input-group">
+                <label for="alphabet-input">Alphabet (comma separated)</label>
+                <input type="text" id="alphabet-input" placeholder="0, 1" value="0, 1">
+            </div>
+            <div class="input-group">
+                <label for="start-state">Start State</label>
+                <select id="start-state"></select>
+            </div>
+            <div class="input-group">
+                <label>Final States</label>
+                <div id="final-states-container" class="checkbox-group"></div>
+            </div>
+            
+            <div class="transition-table-wrapper">
+                <label>Transition Table</label>
+                <table id="transition-input-table">
+                    <thead>
+                        <tr id="transition-header"></tr>
+                    </thead>
+                    <tbody id="transition-body"></tbody>
+                </table>
+            </div>
+            
+            <button id="start-btn" class="btn-primary">Initialize Simulator</button>
+        </section>
+
+        <!-- Tooling Section (Table + Controls + Visualizers) -->
+        <section id="simulator-section" class="hidden">
+            <div class="simulator-layout">
+                <!-- Top Left: Table -->
+                <div id="table-panel" class="panel">
+                    <div class="panel-header">
+                        <h3>Triangular Table</h3>
+                        <div class="stats-mini">
+                            <span>Round: <strong id="iteration-count">0</strong></span>
+                            <span>Marked: <strong id="marked-count">0</strong> / <strong id="total-pairs">0</strong></span>
+                        </div>
+                    </div>
+                    <div id="triangular-table-container"></div>
+                </div>
+
+                <!-- Top Right: Controls & Info -->
+                <div id="controls-panel" class="panel">
+                    <div class="playback-controls">
+                        <button id="reset-sim" class="btn-danger" title="Reset All">↺ Reset</button>
+                        <button id="prev-step" class="btn-secondary" title="Previous Step">Previous Step</button>
+                        <button id="next-step" class="btn-primary" title="Next Step">Next Step</button>
+                    </div>
+                    
+                    <div class="auto-play-group">
+                        <button id="auto-play" class="btn-secondary" style="width: 100%;">▶ Auto Play</button>
+                        <div class="speed-control">
+                            <div class="speed-labels">
+                                <span>Speed</span>
+                            </div>
+                            <input type="range" id="speed-slider" min="100" max="2000" value="1000" step="100">
+                        </div>
+                    </div>
+
+                    <div id="explanation-box" class="explanation-box">
+                        <h4>Reasoning</h4>
+                        <div id="explanation-text">Initial state. Prepare for simulation.</div>
+                    </div>
+                </div>
+
+                <!-- Bottom Left: Step Focus -->
+                <div id="step-focus-panel" class="panel">
+                    <h3>Step Focus</h3>
+                    <div id="step-focus-grid">
+                        <div class="focus-item">
+                            <label>Pair</label>
+                            <div id="focus-pair" class="value-box small">-</div>
+                        </div>
+                        <div class="focus-item">
+                            <label>Symbol</label>
+                            <div id="focus-symbol" class="value-box small">-</div>
+                        </div>
+                        <div class="focus-item">
+                            <label>Result</label>
+                            <div id="focus-result" class="value-box small">-</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Right: Transition Detail -->
+                <div id="transition-panel" class="panel">
+                    <h3>Transition Detail</h3>
+                    <div id="transition-visualizer">
+                        <div class="trans-row" id="trans-p">
+                            <span class="state-blob p-blob">-</span>
+                            <span class="arrow">──<span id="trans-sym">-</span>─▶</span>
+                            <span class="state-blob p-next-blob">-</span>
+                        </div>
+                        <div class="trans-row" id="trans-q">
+                            <span class="state-blob q-blob">-</span>
+                            <span class="arrow">──<span id="trans-sym-q">-</span>─▶</span>
+                            <span class="state-blob q-next-blob">-</span>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Result Section -->
+        <section id="result-section" class="hidden">
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>Minimization Successful</h2>
+                    <button id="scroll-top" class="btn-secondary">Back to Start</button>
+                </div>
+                
+                <div class="equivalence-classes">
+                    <h3>State Conversion Table</h3>
+                    <div id="state-conversion-container"></div>
+                    <div id="state-mapping-container"></div>
+                </div>
+                
+                <div class="comparison-grid">
+                    <!-- Original DFA reused here in logic or just moved -->
+                    <div class="graph-card">
+                        <h3>Final Minimized DFA</h3>
+                        <div id="minimized-graph" class="graph-container"></div>
+                    </div>
+                    
+                    <div class="minimized-table-wrapper">
+                        <h3>Final Transition Table</h3>
+                        <div id="minimized-table-container"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    
+
+    <script src="app.js"></script>
+</body>
+</html>
